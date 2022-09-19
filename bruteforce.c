@@ -71,7 +71,7 @@ bool next_permutation(int *path, int v) {
 
 // Bruteforce of Traveling Salesman Problem
 void bruteforce(int **adj, int v) {
-    printf("----------\n");
+//    printf("----------\n");
     long min_cost = INFINITY;
     long cost = 0;
     int *path = malloc((v - 1) * sizeof(int));
@@ -81,11 +81,11 @@ void bruteforce(int **adj, int v) {
     }
     int count = 0;
     do {
-        printf("0\t");
+//        printf("0\t");
         for (i = 0; i < v - 1; i++) {
-            printf("%d\t", path[i]);
+//            printf("%d\t", path[i]);
         }
-        printf("\n");
+//        printf("\n");
 
         int cost = 0;
         int previous = 0; // fixed vertex 0
@@ -112,11 +112,11 @@ void bruteforce(int **adj, int v) {
 
         if (cost < min_cost) {
             min_cost = cost;
-            printf("0\t");
+//            printf("0\t");
             for (i = 0; i < v - 1; i++) {
-                printf("%d\t", path[i]);
+//                printf("%d\t", path[i]);
             }
-            printf("\nMin cost: %ld\n----------\n", min_cost);
+//            printf("\nMin cost: %ld\n----------\n", min_cost);
         }
         cost = 0;
 

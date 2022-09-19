@@ -59,7 +59,7 @@ void list_devices(int details, cl_platform_id platform) {
     }
 }
 
-// List every opencl device info of a device
+// List every opencl device Info of a device
 void list_device_info(int details, cl_device_id device) {
     cl_int err;
 
