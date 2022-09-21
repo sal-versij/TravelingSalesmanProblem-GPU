@@ -8,29 +8,29 @@ include_directories(${OpenCL_INCLUDE_DIRS})
 link_directories(${OpenCL_LIBRARY})
 
 
-add_executable(Ech1_AMga_CAsr_MCcpu Ech_ViIobrCbr_AMga_CAsr_MCcpu.c)
-target_include_directories(Ech1_AMga_CAsr_MCcpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Ech1_AMga_CAsr_MCcpu ${OpenCL_LIBRARY})
+add_executable(v1 v1.c)
+target_include_directories(v1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1 ${OpenCL_LIBRARY})
 
-add_executable(Ech2_AMga_CAsr_MCcpu Ech_VcIobrCbr_AMga_CAsr_MCcpu.c)
-target_include_directories(Ech2_AMga_CAsr_MCcpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Ech2_AMga_CAsr_MCcpu ${OpenCL_LIBRARY})
+add_executable(v1.1 v1.1.c)
+target_include_directories(v1.1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1.1 ${OpenCL_LIBRARY})
 
-add_executable(Ech3_AMga_CAsr_MCcpu Ech_ViIobcwCbr_AMga_CAsr_MCcpu.c)
-target_include_directories(Ech3_AMga_CAsr_MCcpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Ech3_AMga_CAsr_MCcpu ${OpenCL_LIBRARY})
+add_executable(v1.1.1 v1.1.1.c)
+target_include_directories(v1.1.1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1.1.1 ${OpenCL_LIBRARY})
 
-add_executable(Ech4_AMga_CAsr_MCcpu Ech_VcIobcwCbr_AMga_CAsr_MCcpu.c)
-target_include_directories(Ech4_AMga_CAsr_MCcpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Ech4_AMga_CAsr_MCcpu ${OpenCL_LIBRARY})
+add_executable(v1.1.2 v1.1.2.c)
+target_include_directories(v1.1.2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1.1.2 ${OpenCL_LIBRARY})
 
-add_executable(Ech5_AMga_CAsr_MCcpu Ech_ViIobcmCbr_AMga_CAsr_MCcpu.c)
-target_include_directories(Ech5_AMga_CAsr_MCcpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Ech5_AMga_CAsr_MCcpu ${OpenCL_LIBRARY})
+add_executable(v1.2 v1.2.c)
+target_include_directories(v1.2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1.2 ${OpenCL_LIBRARY})
 
-add_executable(Ech6_AMga_CAsr_MCcpu Ech_VcIobcmCbr_AMga_CAsr_MCcpu.c)
-target_include_directories(Ech6_AMga_CAsr_MCcpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(Ech6_AMga_CAsr_MCcpu ${OpenCL_LIBRARY})
+add_executable(v1.2.1 v1.2.1.c)
+target_include_directories(v1.2.1 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1.2.1 ${OpenCL_LIBRARY})
 
 
 add_executable(list list.c)
