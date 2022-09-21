@@ -26,6 +26,9 @@ Min Cost (MC)
 
 Executables:
 1. Cached enumeration of integer vertices loaded via recreated i/o buffers with global array adjacency matrix and single result cost array copied to host device for min cost computation on CPU
-   1. Cached enumeration of char vertices loaded via recreated i/o buffers with global array adjacency matrix and single result cost array unmapped to host device for min cost computation on CPU
-      1. Cached enumeration of char vertices loaded via created once i/o buffers copied to device with global array adjacency matrix and single result cost array unmapped to host device for min cost computation on CPU
-      2. Cached enumeration of char vertices loaded via created once i/o buffers mapped to device with global array adjacency matrix and single result cost array unmapped to host device for min cost computation on CPU
+   1. Cached enumeration of char vertices loaded via recreated i/o buffers with global array adjacency matrix and single result cost array mapped to host device for min cost computation on CPU
+      1. Cached enumeration of char vertices loaded via created once i/o buffers copied to device with global array adjacency matrix and single result cost array mapped to host device for min cost computation on CPU
+      2. Cached enumeration of char vertices loaded via created once i/o buffers mapped to device with global array adjacency matrix and single result cost array mapped to host device for min cost computation on CPU
+   2. Cached enumeration of char vertices loaded via recreated i/o buffers with local array adjacency matrix and single result cost array mapped to host device for min cost computation on CPU
+      1. Reorder partitions array to get contguous memory access
+2. Procedural enumeration of char vertices loaded via recreated i/o buffers with local array adjacency matrix and single result cost array mapped to host device for min cost computation on CPU

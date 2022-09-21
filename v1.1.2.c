@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     }
     //endregion
 
-    struct Info info = initialize("GlobalArray_SingleResult_char");
+    struct Info info = initialize("Cached_GlobalArray_SingleResult_char");
 
     //region Initialize Graph
     size_t adjsize = v * v * sizeof(int);

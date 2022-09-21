@@ -107,11 +107,11 @@ int enumeratePermutationsMain(int argc, char **args) {
     printf("Total permutations: %d\n", totalPermutations);
     for (int i = 0; i < totalPermutations; i++) {
         calcPermutation(i, out, n - 1);
-//        printf("0\t");
-//        for (int j = 0; j < n - 1; j++) {
-//            printf("%d\t", out[j] + 1);
-//        }
-//        printf("\n");
+        printf("0\t");
+        for (int j = 0; j < n - 1; j++) {
+            printf("%d\t", out[j] + 1);
+        }
+        printf("\n");
     }
     return 0;
 }

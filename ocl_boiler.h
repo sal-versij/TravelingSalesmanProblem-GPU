@@ -175,7 +175,7 @@ cl_program create_program(const char * const fname, cl_context ctx,
 
 	snprintf(src_buf, BUFSIZE, "// %s#include \"%s\"\n",
 		ctime(&now), fname);
-//	printf("compiling:\n%s", src_buf);
+	printf("compiling:\n%s", src_buf);
 	prg = clCreateProgramWithSource(ctx, 1, &buf_ptr, NULL, &err);
 	ocl_check(err, "create program");
 
@@ -198,7 +198,7 @@ cl_program create_program(const char * const fname, cl_context ctx,
 	} else {
 		log_buf[logsize] = '\0';
 	}
-//	printf("=== BUILD LOG ===\n%s\n=========\n", log_buf);
+	printf("=== BUILD LOG ===\n%s\n=========\n", log_buf);
 	ocl_check(err, "build program");
 
 	return prg;

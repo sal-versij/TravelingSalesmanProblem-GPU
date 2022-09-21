@@ -6,22 +6,26 @@
 #include "ocl_boiler.h"
 #include "setup.h"
 
-cl_event kernel(cl_command_queue q, cl_kernel k, size_t preferred_multiple_init, cl_mem d_permutations, cl_mem d_adj,
-                cl_mem d_costs, cl_int v, cl_int work_size) {
+cl_event kernel(cl_command_queue q, cl_kernel k, size_t preferred_multiple_init, cl_mem d_adj, cl_mem d_costs, cl_int v,
+                cl_int work_size) {
     cl_int err;
-    AddKernelArg(k, 0, sizeof(d_permutations), &d_permutations);
-    AddKernelArg(k, 1, sizeof(d_adj), &d_adj);
-    AddKernelArg(k, 2, sizeof(d_costs), &d_costs);
-    AddKernelArg(k, 3, sizeof(v), &v);
-    AddKernelArg(k, 4, sizeof(work_size), &work_size);
-    AddKernelArg(k, 5, v * v * sizeof(int), NULL);
+    AddKernelArg(k, 0, sizeof(d_adj), &d_adj);
+    AddKernelArg(k, 1, sizeof(d_costs), &d_costs);
+    AddKernelArg(k, 2, sizeof(v), &v);
+    AddKernelArg(k, 3, sizeof(work_size), &work_size);
+    AddKernelArg(k, 4, v * v * sizeof(int), NULL);
 
-    size_t gws[] = {round_mul_up(work_size, preferred_multiple_init)};
+    size_t gws = round_mul_up(work_size, preferred_multiple_init);
+    size_t lws = preferred_multiple_init;
+
+    size_t supportSize = lws * ((v - 1) >> 1) * sizeof(char);
+
+    AddKernelArg(k, 5, supportSize, NULL);
+    AddKernelArg(k, 6, supportSize, NULL);
+    AddKernelArg(k, 7, supportSize, NULL);
 
     cl_event kernel_evt;
-    err = clEnqueueNDRangeKernel(q, k,
-                                 1, NULL, gws, NULL,
-                                 0, NULL, &kernel_evt);
+    err = clEnqueueNDRangeKernel(q, k, 1, NULL, &gws, &lws, 0, NULL, &kernel_evt);
     ocl_check(err, "launch kernel");
     return kernel_evt;
 }
@@ -54,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
     //endregion
 
-    struct Info info = initialize("Cached_LocalArray_SingleResult_char");
+    struct Info info = initialize("Procedural_Single");
 
     //region Initialize Graph
     size_t adjsize = v * v * sizeof(int);
@@ -111,7 +115,7 @@ int main(int argc, char *argv[]) {
         int current_number_of_permutations = 0;
         do {
             for (i = 0; i < v - 1; ++i) {
-                permutations[current_number_of_permutations * (v - 1) + i] = path[i];
+                permutations[current_number_of_permutations + (v - 1) * i] = path[i];
             }
             ++current_number_of_permutations;
             if (current_number_of_permutations == chunk_size) {
@@ -126,8 +130,8 @@ int main(int argc, char *argv[]) {
                                                &err);
         ocl_check(err, "create d_permutations");
 
-        kernel_evt = kernel(info.queue, info.kernel, info.preferred_multiple_init, d_permutations, d_adj,
-                            d_costs, v, current_number_of_permutations);
+        kernel_evt = kernel(info.queue, info.kernel, info.preferred_multiple_init, d_adj, d_costs, v,
+                            current_number_of_permutations);
 
         clEnqueueMapBuffer(info.queue, d_costs, CL_FALSE, CL_MAP_READ, 0, costs_size, 1, &kernel_evt, &read_evt,
                            &err);
@@ -173,7 +177,7 @@ int main(int argc, char *argv[]) {
     printf("Total runtime: %.3f ms\n", task.runtime);
     //endregion
 
-    FILE *f = fopen("v1.2.csv", "a");
+    FILE *f = fopen("v2.csv", "a");
     printResult(f, task);
     fclose(f);
 

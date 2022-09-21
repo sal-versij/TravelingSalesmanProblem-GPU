@@ -96,7 +96,7 @@ char next_permutation(int *path, int v) {
 unsigned long long factorial(int n) {
     unsigned long long result = 1;
     for (int i = 1; i <= n; i++) {
-        result *= i;
+        result = result * i;
     }
     return result;
 }
@@ -145,7 +145,6 @@ void AddKernelArg(cl_kernel kernel, cl_uint arg_index, size_t arg_size, void *ar
     cl_int err = clSetKernelArg(kernel, arg_index, arg_size, arg_value);
     ocl_check(err, "setting kernel arg %u", arg_index);
 }
-
 
 struct ChunkRun {
     unsigned long long int size;
