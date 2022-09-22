@@ -342,17 +342,17 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
 
     // each permutation has only the vertices from 1 to v-1
     int n = v - 1;
-    int previous = 0; // fixed vertex 0
+    char previous = 0; // fixed vertex 0
+    char current;
     ulong perm = id;
     int edge = 0;
     int cost = 0;
+    int n_j = 1;
 
     start[l_id + l_size * 0] = 0;
     end[l_id + l_size * 0] = n - 1;
-    int n_j = 1;
-    int current;
 
-    for (int i = n; i > 0; perm /= i--) {
+    for (char i = n; i > 0; perm /= i--) {
       current = perm % i;
 
       for (int j = 0; j < n_j; j++) {
