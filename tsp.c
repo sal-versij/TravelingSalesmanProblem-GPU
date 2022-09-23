@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     cl_int err;
     //region Params
     if (argc < 2 || argc > 6) {
-            fprintf(stderr, "Usage: %s <nVertexes> [seed] [missCoeficient] [maxWeight]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <nVertexes> [lws] [seed] [missCoeficient] [maxWeight]\n", argv[0]);
         return 1;
     }
     int p = 1;
@@ -78,9 +78,7 @@ int main(int argc, char *argv[]) {
     unsigned long long totalPermutations = factorial(v - 1);
     printf("Total Permutations: %llu\n", totalPermutations);
 
-    task.chunkSize = totalPermutations;
     task.totalPermutations = totalPermutations;
-    task.totalChunks = 1;
 
     cl_event kernel_evt;
     cl_event read_evt;
@@ -101,26 +99,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    task.chunkRuns = malloc(sizeof(struct ChunkRun));
-    task.chunkRuns->size = totalPermutations;
-    task.chunkRuns->write_runtime = 0;
-    task.chunkRuns->kernel_runtime = runtime_ms(kernel_evt);
-    task.chunkRuns->read_runtime = runtime_ms(read_evt);
-    task.chunkRuns->write_bw = 0;
-    task.chunkRuns->kernel_bw = v * v * sizeof(int) + costs_size;
-    task.chunkRuns->read_bw = costs_size;
-
     task.cost = minCost;
     task.runtime = total_runtime_ms(kernel_evt, read_evt);
 
     printf("Total runtime: %.3f ms\n", task.runtime);
 //endregion
-
-    FILE *f = fopen("v2.2.csv", "a");
-    printResult(f, task
-    );
-    fclose(f);
-
 
     err = clEnqueueUnmapMemObject(info.queue, d_costs, costs, 1, &read_evt, NULL);
     ocl_check(err, "unmap costs");
