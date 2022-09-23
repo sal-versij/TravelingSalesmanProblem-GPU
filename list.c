@@ -17,7 +17,7 @@ void list_platforms(int details) {
     cl_int err = clGetPlatformIDs(0, NULL, &num_platforms);
     ocl_check(err, "get number of platforms");
 
-    cl_platform_id platforms[num_platforms];
+    cl_platform_id *platforms = malloc(num_platforms * sizeof(cl_platform_id));
     err = clGetPlatformIDs(num_platforms, platforms, NULL);
     ocl_check(err, "get platform ids");
 
@@ -41,7 +41,7 @@ void list_devices(int details, cl_platform_id platform) {
     cl_int err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &num_devices);
     ocl_check(err, "get number of devices");
 
-    cl_device_id devices[num_devices];
+    cl_device_id *devices = malloc(num_devices * sizeof(cl_device_id));
     err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, num_devices, devices, NULL);
     ocl_check(err, "get device ids");
 
@@ -79,7 +79,7 @@ void list_device_info(int details, cl_device_id device) {
     ocl_check(err, "get max work item dimensions");
     printf("\t\tMax work item dimensions: %u\n", max_work_item_dimensions);
 
-    size_t max_work_item_sizes[max_work_item_dimensions];
+    size_t *max_work_item_sizes = malloc(max_work_item_dimensions * sizeof(size_t));
     err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(max_work_item_sizes), &max_work_item_sizes,
                           NULL);
     ocl_check(err, "get max work item sizes");
