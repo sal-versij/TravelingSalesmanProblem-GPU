@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
                 info.queue, info.kernel, &write_evt, 1, info.preferred_multiple_init,
                 d_permutations, d_adj, d_costs, v, current_number_of_permutations);
 
-        clEnqueueMapBuffer(info.queue, d_costs, CL_TRUE, CL_MAP_READ, 0, costs_size, 1, &kernel_evt, &read_evt,
+        clEnqueueMapBuffer(info.queue, d_costs, CL_FALSE, CL_MAP_READ, 0, costs_size, 1, &kernel_evt, &read_evt,
                            &err);
         ocl_check(err, "map costs");
         err = clEnqueueUnmapMemObject(info.queue, d_costs, costs, 1, &read_evt, &unmap_evt);

@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
                                         &err);
         ocl_check(err, "create d_costs");
 
-
         kernel_evt = kernel(info.queue, info.kernel, info.preferred_multiple_init, d_permutations, d_adj,
                             d_costs, v, current_number_of_permutations);
 

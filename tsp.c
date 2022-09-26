@@ -16,7 +16,7 @@ cl_event kernel(cl_command_queue q, cl_kernel k, size_t lws, cl_mem d_adj, cl_me
     AddKernelArg(k, i++, sizeof(work_size), &work_size);
     AddKernelArg(k, i++, v * v * sizeof(int), NULL);
 
-    size_t supportSize = lws * ((v) >> 1) * sizeof(char);
+    size_t supportSize = lws * (v >> 1) * sizeof(char);
 
     AddKernelArg(k, i++, lws * sizeof(int), NULL);
     AddKernelArg(k, i++, supportSize, NULL);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     task.cost = minCost;
     task.runtime = total_runtime_ms(kernel_evt, read_evt);
 
-    printf("Total runtime: %.3f ms\n", task.runtime);
+    printf("Total runtime: %.3f ms, %.3f MPerm/s\n", task.runtime, totalPermutations / task.runtime / 1e6);
 //endregion
 
     err = clEnqueueUnmapMemObject(info.queue, d_costs, costs, 1, &read_evt, NULL);

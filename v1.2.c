@@ -6,8 +6,10 @@
 #include "ocl_boiler.h"
 #include "setup.h"
 
-cl_event kernel(cl_command_queue q, cl_kernel k, size_t preferred_multiple_init, cl_mem d_permutations, cl_mem d_adj,
-                cl_mem d_costs, cl_int v, cl_int work_size) {
+cl_event kernel(
+        cl_command_queue q, cl_kernel k, cl_event *waiting_event, cl_uint waiting_list_length,
+        size_t preferred_multiple_init, cl_mem d_permutations, cl_mem d_adj, cl_mem d_costs, cl_int v,
+        cl_int work_size) {
     cl_int err;
     AddKernelArg(k, 0, sizeof(d_permutations), &d_permutations);
     AddKernelArg(k, 1, sizeof(d_adj), &d_adj);
@@ -21,7 +23,7 @@ cl_event kernel(cl_command_queue q, cl_kernel k, size_t preferred_multiple_init,
     cl_event kernel_evt;
     err = clEnqueueNDRangeKernel(q, k,
                                  1, NULL, gws, NULL,
-                                 0, NULL, &kernel_evt);
+                                 waiting_list_length, waiting_event, &kernel_evt);
     ocl_check(err, "launch kernel");
     return kernel_evt;
 }
@@ -75,8 +77,10 @@ int main(int argc, char *argv[]) {
 
     unsigned long long chunk_size = info.preferred_multiple_init * chunks;
     unsigned long long permutations_size = chunk_size * (v - 1) * sizeof(int);
+    int costs_size = chunk_size * sizeof(int);
 
     char *permutations = malloc(permutations_size);
+    int *costs = malloc(costs_size);
 
     char *path = malloc((v - 1) * sizeof(char));
     for (i = 1; i < v; ++i) {
@@ -88,18 +92,21 @@ int main(int argc, char *argv[]) {
     task.totalChunks = (task.totalPermutations + chunk_size - 1) / chunk_size;
     task.chunkRuns = malloc(task.totalChunks * sizeof(struct ChunkRun));
 
+    cl_mem d_permutations = clCreateBuffer(info.context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, permutations_size,
+                                           permutations, &err);
+    ocl_check(err, "create d_permutations");
+
+    cl_mem d_costs = clCreateBuffer(info.context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, costs_size, costs,
+                                    &err);
+    ocl_check(err, "create d_costs");
+
+    cl_event write_evt;
     cl_event kernel_evt;
     cl_event read_evt;
     cl_event unmap_evt;
 
     cl_event first_evt;
     cl_event last_evt;
-
-    int costs_size = chunk_size * sizeof(int);
-    int *costs = malloc(costs_size);
-    cl_mem d_costs = clCreateBuffer(info.context, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, costs_size, costs,
-                                    &err);
-    ocl_check(err, "create d_costs");
 
     char continueLoop = 1;
     char first = 1;
@@ -121,13 +128,14 @@ int main(int argc, char *argv[]) {
             continueLoop = next_permutation_chars(path, v - 1);
         } while (continueLoop);
 
-        cl_mem d_permutations = clCreateBuffer(info.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                                               current_number_of_permutations * (v - 1) * sizeof(int), permutations,
-                                               &err);
-        ocl_check(err, "create d_permutations");
+        err = clEnqueueWriteBuffer(info.queue, d_permutations, CL_FALSE, 0,
+                                   current_number_of_permutations * (v - 1) * sizeof(char),
+                                   permutations, 0, NULL, &write_evt);
+        ocl_check(err, "enqueue write");
 
-        kernel_evt = kernel(info.queue, info.kernel, info.preferred_multiple_init, d_permutations, d_adj,
-                            d_costs, v, current_number_of_permutations);
+        kernel_evt = kernel(
+                info.queue, info.kernel, &write_evt, 1, info.preferred_multiple_init,
+                d_permutations, d_adj, d_costs, v, current_number_of_permutations);
 
         clEnqueueMapBuffer(info.queue, d_costs, CL_FALSE, CL_MAP_READ, 0, costs_size, 1, &kernel_evt, &read_evt,
                            &err);
@@ -146,22 +154,21 @@ int main(int argc, char *argv[]) {
 
         struct ChunkRun chunkRun = {0};
         chunkRun.size = current_number_of_permutations;
-        chunkRun.write_runtime = 0;
+        chunkRun.write_runtime = runtime_ms(write_evt);
         chunkRun.kernel_runtime = runtime_ms(kernel_evt);
         chunkRun.read_runtime = total_runtime_ms(read_evt, unmap_evt);
-        chunkRun.write_bw = 0;
+        chunkRun.write_bw = current_number_of_permutations * (v - 1) * sizeof(char);
         chunkRun.kernel_bw = v * v * sizeof(int) + current_number_of_permutations * (v - 1) * sizeof(int);
         chunkRun.read_bw = costs_size;
         if (nChunk % percentageUpadte == 0) {
             printf("Chunk %d/%llu\n", nChunk, task.totalChunks);
         }
 
-        clReleaseMemObject(d_permutations);
         task.chunkRuns[nChunk - 1] = chunkRun;
 
         if (first) {
             first = 0;
-            first_evt = kernel_evt;
+            first_evt = write_evt;
         }
     }
     last_evt = unmap_evt;
@@ -179,6 +186,7 @@ int main(int argc, char *argv[]) {
 
     freeInfo(info);
     clReleaseMemObject(d_adj);
+    clReleaseMemObject(d_permutations);
     clReleaseMemObject(d_costs);
 
     return 0;

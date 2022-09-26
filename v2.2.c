@@ -16,7 +16,7 @@ cl_event kernel(cl_command_queue q, cl_kernel k, size_t lws, cl_mem d_adj, cl_me
     AddKernelArg(k, i++, sizeof(work_size), &work_size);
     AddKernelArg(k, i++, v * v * sizeof(int), NULL);
 
-    size_t supportSize = lws * ((v) >> 1) * sizeof(char);
+    size_t supportSize = lws * (v >> 1) * sizeof(char);
 
     AddKernelArg(k, i++, lws * sizeof(int), NULL);
     AddKernelArg(k, i++, supportSize, NULL);
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     cl_int err;
     //region Params
     if (argc < 2 || argc > 6) {
-            fprintf(stderr, "Usage: %s <nVertexes> [seed] [missCoeficient] [maxWeight]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <nVertexes> [lws] [seed] [missCoeficient] [maxWeight]\n", argv[0]);
         return 1;
     }
     int p = 1;

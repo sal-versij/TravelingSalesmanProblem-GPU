@@ -8,7 +8,6 @@ kernel void Cached_GlobalArray_SingleResult(global int *permutations,
   if (id >= workSize) {
     return;
   }
-  // printf("Id: %d; v: %d; workSize: %d;\n", id, v, workSize);
   // We are searching a loop, so doesn't matter from which vertex to start,
   // to reduce number of permutations to process we fix the first vertex to
   // vertex 0
@@ -21,13 +20,10 @@ kernel void Cached_GlobalArray_SingleResult(global int *permutations,
   int edge;
 
   for (int i = 0; i < v - 1; i++) {
-    // printf("permutations[%d][%d]: %d\n", id, i, permutations[id * (v - 1) +
-    // i]);
     current = permutations[id * (v - 1) + i];
-    // printf("adj [%d][%d] = %d\n", previous, current, adjacencyMatrix[previous
-    // * v + current]);
+
     edge = adjacencyMatrix[previous * v + current];
-    // printf("[%d] Edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
       break;
@@ -39,7 +35,7 @@ kernel void Cached_GlobalArray_SingleResult(global int *permutations,
   if (cost != infinity) {
     // add the last edge to close the loop
     edge = adjacencyMatrix[previous * v];
-    // printf("[%d] Last edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
     } else {
@@ -47,7 +43,6 @@ kernel void Cached_GlobalArray_SingleResult(global int *permutations,
     }
   }
 
-  // printf("[%d] Cost: %d\n", id, cost);
   costs[id] = cost;
 }
 
@@ -59,7 +54,6 @@ kernel void Cached_GlobalArray_SingleResult_char(global char *permutations,
   if (id >= workSize) {
     return;
   }
-  // printf("Id: %d; v: %d; workSize: %d;\n", id, v, workSize);
 
   // We are searching a loop, so doesn't matter from which vertex to start,
   // to reduce number of permutations to process we fix the first vertex to
@@ -73,13 +67,10 @@ kernel void Cached_GlobalArray_SingleResult_char(global char *permutations,
   int edge;
 
   for (int i = 0; i < v - 1; i++) {
-    // printf("permutations[%d][%d]: %d\n", id, i, permutations[id * (v - 1) +
-    // i]);
     current = permutations[id * (v - 1) + i];
-    // printf("adj [%d][%d] = %d\n", previous, current,
-    //        adjacencyMatrix[previous * v + current]);
+
     edge = adjacencyMatrix[previous * v + current];
-    // printf("[%d] Edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
       break;
@@ -91,7 +82,7 @@ kernel void Cached_GlobalArray_SingleResult_char(global char *permutations,
   if (cost != infinity) {
     // add the last edge to close the loop
     edge = adjacencyMatrix[previous * v];
-    // printf("[%d] Last edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
     } else {
@@ -99,7 +90,6 @@ kernel void Cached_GlobalArray_SingleResult_char(global char *permutations,
     }
   }
 
-  // printf("[%d] Cost: %d\n", id, cost);
   costs[id] = cost;
 }
 
@@ -112,7 +102,6 @@ kernel void Cached_LocalArray_SingleResult_char(global char *permutations,
   if (id >= workSize) {
     return;
   }
-  // printf("Id: %d; v: %d; workSize: %d;\n", id, v, workSize);
 
   // Load adjacency matrix to local memory
   for (int i = get_local_id(0); i < v * v; i += get_local_size(0)) {
@@ -132,13 +121,10 @@ kernel void Cached_LocalArray_SingleResult_char(global char *permutations,
   int edge;
 
   for (int i = 0; i < v - 1; i++) {
-    // printf("permutations[%d][%d]: %d\n", id, i, permutations[id * (v - 1) +
-    // i]);
     current = permutations[id * (v - 1) + i];
-    // printf("adj [%d][%d] = %d\n", previous, current,
-    //        adjacencyMatrix[previous * v + current]);
+
     edge = adjacencyMatrix[previous * v + current];
-    // printf("[%d] Edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
       break;
@@ -150,7 +136,7 @@ kernel void Cached_LocalArray_SingleResult_char(global char *permutations,
   if (cost != infinity) {
     // add the last edge to close the loop
     edge = adjacencyMatrix[previous * v];
-    // printf("[%d] Last edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
     } else {
@@ -158,20 +144,16 @@ kernel void Cached_LocalArray_SingleResult_char(global char *permutations,
     }
   }
 
-  // printf("[%d] Cost: %d\n", id, cost);
   costs[id] = cost;
 }
 
-kernel void Cached_LocalArray_SingleResult_char_v2(global char *permutations,
-                                                   global int *_adjacencyMatrix,
-                                                   global int *costs, int v,
-                                                   int workSize,
-                                                   local int *adjacencyMatrix) {
+kernel void Cached_LocalArray_SingleResult_char_v2(
+    global char *permutations, global int *_adjacencyMatrix, global int *costs,
+    int v, int workSize, int permutationStride, local int *adjacencyMatrix) {
   int id = get_global_id(0);
   if (id >= workSize) {
     return;
   }
-  // printf("Id: %d; v: %d; workSize: %d;\n", id, v, workSize);
 
   // Load adjacency matrix to local memory
   for (int i = get_local_id(0); i < v * v; i += get_local_size(0)) {
@@ -191,13 +173,10 @@ kernel void Cached_LocalArray_SingleResult_char_v2(global char *permutations,
   int edge;
 
   for (int i = 0; i < v - 1; i++) {
-    // printf("permutations[%d][%d]: %d\n", id, i, permutations[id * (v - 1) +
-    // i]);
-    current = permutations[id + (v - 1) * i];
-    // printf("adj [%d][%d] = %d\n", previous, current,
-    //        adjacencyMatrix[previous * v + current]);
+    current = permutations[id + permutationStride * i];
+
     edge = adjacencyMatrix[previous * v + current];
-    // printf("[%d] Edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
       break;
@@ -209,7 +188,7 @@ kernel void Cached_LocalArray_SingleResult_char_v2(global char *permutations,
   if (cost != infinity) {
     // add the last edge to close the loop
     edge = adjacencyMatrix[previous * v];
-    // printf("[%d] Last edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
     } else {
@@ -217,7 +196,6 @@ kernel void Cached_LocalArray_SingleResult_char_v2(global char *permutations,
     }
   }
 
-  // printf("[%d] Cost: %d\n", id, cost);
   costs[id] = cost;
 }
 
@@ -229,7 +207,6 @@ kernel void Procedural_Single(global int *_adjacencyMatrix, global int *costs,
   if (id >= workSize) {
     return;
   }
-  // printf("Id: %d; v: %d; workSize: %d;\n", id, v, workSize);
 
   int l_id = get_local_id(0);
   int l_size = get_local_size(0);
@@ -293,9 +270,8 @@ kernel void Procedural_Single(global int *_adjacencyMatrix, global int *costs,
     // Fix the permutation so that the vertexes are in range 1 to v-1
     ++current;
 
-    // printf("current: %d\n", current);
     edge = adjacencyMatrix[previous * v + current];
-    // printf("[%d] Edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
       break;
@@ -307,7 +283,7 @@ kernel void Procedural_Single(global int *_adjacencyMatrix, global int *costs,
   if (cost != infinity) {
     // add the last edge to close the loop
     edge = adjacencyMatrix[previous * v];
-    // printf("[%d] Last edge: %d\n", id, edge);
+
     if (edge == infinity) {
       cost = infinity;
     } else {
@@ -315,7 +291,6 @@ kernel void Procedural_Single(global int *_adjacencyMatrix, global int *costs,
     }
   }
 
-  // printf("[%d] Cost: %d\n", id, cost);
   costs[id] = cost;
 }
 
@@ -335,7 +310,6 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
 
   costs[l_id] = infinity;
   for (ulong id = l_id; id < workSize; id += l_size) {
-    // printf("[%d] Id: %d\n", l_id, id);
     //  We are searching a loop, so doesn't matter from which vertex to start,
     //  to reduce number of permutations to process we fix the first vertex to
     //  vertex 0
@@ -390,9 +364,8 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
       // Fix the permutation so that the vertexes are in range 1 to v-1
       ++current;
 
-      // printf("[%d|%d] current: %d\n", l_id, id, current);
       edge = adjacencyMatrix[previous * v + current];
-      // printf("[%d|%d] Edge: %d\n", l_id, id, edge);
+
       if (edge == infinity) {
         cost = infinity;
         break;
@@ -404,7 +377,7 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
     if (cost != infinity) {
       // add the last edge to close the loop
       edge = adjacencyMatrix[previous * v];
-      // printf("[%d|%d] Last edge: %d\n", l_id, id, edge);
+
       if (edge == infinity) {
         cost = infinity;
       } else {
@@ -412,11 +385,9 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
       }
     }
 
-    // printf("[%d|%d] Cost: %d\n", l_id, id, cost);
     if (cost < costs[l_id]) {
       costs[l_id] = cost;
     }
   }
   _costs[l_id] = costs[l_id];
-  // printf("[%d] Cost: %d\n", l_id, _costs[l_id]);
 }

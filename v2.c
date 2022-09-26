@@ -18,7 +18,7 @@ cl_event kernel(cl_command_queue q, cl_kernel k, size_t preferred_multiple_init,
     size_t gws = round_mul_up(work_size, preferred_multiple_init);
     size_t lws = preferred_multiple_init;
 
-    size_t supportSize = lws * ((v - 1) >> 1) * sizeof(char);
+    size_t supportSize = lws * (v >> 1) * sizeof(char);
 
     AddKernelArg(k, 5, supportSize, NULL);
     AddKernelArg(k, 6, supportSize, NULL);
