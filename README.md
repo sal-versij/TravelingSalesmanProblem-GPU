@@ -18,3 +18,11 @@
 > cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=ninja -G Ninja -S .\ -B .\build
 > cmake --build .\build --target main -j 3
 > ```
+
+Optionally you can execute any version of the code by cahnging the `-target` from `main` to the filename of the version to execute without extension
+> An example of building the version 1.1.1
+>
+> ```shell
+> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=ninja -G Ninja -S .\ -B .\build
+> cmake --build .\build --target v1.1.1 -j 3
+> ```
