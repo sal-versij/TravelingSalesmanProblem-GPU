@@ -1,4 +1,4 @@
-# The Salary Man Problem on GPU
+# Traveling Salesman Problem on GPU
 
 ## Prerequisites
 
