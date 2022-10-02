@@ -24,6 +24,10 @@ add_executable(v1.1.2 v1.1.2.c)
 target_include_directories(v1.1.2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(v1.1.2 ${OpenCL_LIBRARY})
 
+add_executable(v1.1.3 v1.1.3.c)
+target_include_directories(v1.1.3 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(v1.1.3 ${OpenCL_LIBRARY})
+
 add_executable(v1.2 v1.2.c)
 target_include_directories(v1.2 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(v1.2 ${OpenCL_LIBRARY})

@@ -99,10 +99,10 @@ int main(int argc, char *argv[]) {
                                     &err);
     ocl_check(err, "create d_costs");
 
-    cl_event write_evt;
+    cl_event map_input_evt;
     cl_event unmap_input_evt;
     cl_event kernel_evt;
-    cl_event read_evt;
+    cl_event map_output_evt;
     cl_event unmap_output_evt;
 
     cl_event first_evt;
@@ -128,21 +128,22 @@ int main(int argc, char *argv[]) {
             continueLoop = next_permutation_chars(path, v - 1);
         } while (continueLoop);
 
-        clEnqueueMapBuffer(info.queue, d_permutations, CL_FALSE, CL_MAP_WRITE, 0, permutations_size, 0, NULL,
-                           &write_evt, &err);
+        clEnqueueMapBuffer(info.queue, d_permutations, CL_FALSE, CL_MAP_WRITE_INVALIDATE_REGION, 0,
+                           current_number_of_permutations * (v - 1) * sizeof(char), 0, NULL,
+                           &map_input_evt, &err);
         ocl_check(err, "enqueue write");
 
-        err = clEnqueueUnmapMemObject(info.queue, d_permutations, permutations, 1, &write_evt, &unmap_input_evt);
+        err = clEnqueueUnmapMemObject(info.queue, d_permutations, permutations, 1, &map_input_evt, &unmap_input_evt);
         ocl_check(err, "unmap costs");
 
         kernel_evt = kernel(
                 info.queue, info.kernel, &unmap_input_evt, 1, info.preferred_multiple_init,
                 d_permutations, d_adj, d_costs, v, current_number_of_permutations);
 
-        clEnqueueMapBuffer(info.queue, d_costs, CL_FALSE, CL_MAP_READ, 0, costs_size, 1, &kernel_evt, &read_evt,
+        clEnqueueMapBuffer(info.queue, d_costs, CL_FALSE, CL_MAP_READ, 0, costs_size, 1, &kernel_evt, &map_output_evt,
                            &err);
         ocl_check(err, "read costs");
-        err = clEnqueueUnmapMemObject(info.queue, d_costs, costs, 1, &read_evt, &unmap_output_evt);
+        err = clEnqueueUnmapMemObject(info.queue, d_costs, costs, 1, &map_output_evt, &unmap_output_evt);
         ocl_check(err, "unmap costs");
 
         err = clWaitForEvents(1, &unmap_output_evt);
@@ -156,9 +157,9 @@ int main(int argc, char *argv[]) {
 
         struct ChunkRun chunkRun = {0};
         chunkRun.size = current_number_of_permutations;
-        chunkRun.write_runtime = runtime_ms(write_evt);
+        chunkRun.write_runtime = runtime_ms(unmap_input_evt);
         chunkRun.kernel_runtime = runtime_ms(kernel_evt);
-        chunkRun.read_runtime = total_runtime_ms(read_evt, unmap_output_evt);
+        chunkRun.read_runtime = total_runtime_ms(map_output_evt, unmap_output_evt);
         chunkRun.write_bw = current_number_of_permutations * (v - 1) * sizeof(char);
         chunkRun.kernel_bw = 2.0 * v * current_number_of_permutations * sizeof(char);
         chunkRun.read_bw = costs_size;
@@ -170,7 +171,7 @@ int main(int argc, char *argv[]) {
 
         if (first) {
             first = 0;
-            first_evt = write_evt;
+            first_evt = unmap_input_evt;
         }
     }
     last_evt = unmap_output_evt;
@@ -182,7 +183,7 @@ int main(int argc, char *argv[]) {
     printf("Total runtime: %.3f ms\n", task.runtime);
     //endregion
 
-    FILE *f = fopen("v1.1.2.csv", "a");
+    FILE *f = fopen("v1.1.3.csv", "a");
     printResult(f, task);
     fclose(f);
 
