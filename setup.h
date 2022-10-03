@@ -172,6 +172,28 @@ struct Task {
     struct ChunkRun *std;
 };
 
+struct TaskV3 {
+    int vertexes;
+    int lws;
+    int nwg;
+    int seed;
+    int missCoeficient;
+    int maxWeight;
+    unsigned long long int cost;
+    unsigned long long int totalPermutations;
+    unsigned long long int totalChunks;
+    unsigned long long int chunkSize;
+    double runtime;
+    unsigned long long int size;
+    double kernel_runtime;
+    double write_runtime;
+    double search_runtime;
+    double read_runtime;
+    double write_bw;
+    double kernel_bw;
+    double read_bw;
+};
+
 void calc_avg_std(struct Task task, struct ChunkRun *average, struct ChunkRun *std) {
     for (int i = 0; i < task.totalChunks; i++) {
         average->write_runtime += task.chunkRuns[i].write_runtime;
@@ -237,4 +259,20 @@ void printResult(FILE *stream, struct Task task) {
             task.average->read_bw,
             task.std->read_bw);
 
+}
+
+void printResultV3(FILE *stream, struct TaskV3 task) {
+    // Print as csv line to stdout
+    fprintf(stream,
+            "%d|%d|%d|%llu|%llu|%f|%f|%f|%f|%f\n",
+            task.vertexes,
+            task.lws,
+            task.nwg,
+            task.totalPermutations,
+            task.cost,
+            task.runtime,
+            task.write_runtime,
+            task.kernel_runtime,
+            task.search_runtime,
+            task.read_runtime);
 }

@@ -299,7 +299,8 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
                                       local int *adjacencyMatrix,
                                       local int *costs, local char *start,
                                       local char *end, local char *next) {
-  ulong l_id = get_local_id(0);
+  int g_id = get_global_id(0);
+  int l_id = get_local_id(0);
   int l_size = get_local_size(0);
 
   // Load adjacency matrix to local memory
@@ -389,5 +390,39 @@ kernel void Procedural_Sliding_Window(global int *_adjacencyMatrix,
       costs[l_id] = cost;
     }
   }
-  _costs[l_id] = costs[l_id];
+  _costs[g_id] = costs[l_id];
+}
+
+kernel void search_min(global int *restrict output,
+                       const global int4 *restrict input,
+                       local int *restrict lmem, int nquarts) {
+  int val = infinity;
+
+  for (int g_id = get_global_id(0); g_id < nquarts;
+       g_id += get_global_size(0)) {
+    int4 q = input[g_id];
+    if (q.x < val)
+      val = q.x;
+    if (q.y < val)
+      val = q.y;
+    if (q.z < val)
+      val = q.z;
+    if (q.w < val)
+      val = q.w;
+  }
+
+  const int l_id = get_local_id(0);
+
+  lmem[l_id] = val;
+
+  for (int stride = get_local_size(0) / 2; stride > 0; stride /= 2) {
+    barrier(CLK_LOCAL_MEM_FENCE);
+    if (l_id < stride) {
+      if (lmem[l_id + stride] < lmem[l_id])
+        lmem[l_id] = lmem[l_id + stride];
+    }
+  }
+
+  if (l_id == 0)
+    output[get_group_id(0)] = lmem[0];
 }

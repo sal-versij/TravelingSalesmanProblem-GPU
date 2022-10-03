@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
 #define BUFSIZE 4096
 
-#define OCL_BOILER_INIT_INFO 0
+#define OCL_BOILER_INIT_INFO 1
 
 /* Check an OpenCL error status, printing a message and exiting
  * in case of failure
