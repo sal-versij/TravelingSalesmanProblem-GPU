@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 
     //endregion
 
-    struct Info info = initialize("Procedural_Sliding_Window");
+    struct Info info = initialize("Procedural_Sliding_Window_nwg");
 
     cl_kernel search_kernel = clCreateKernel(info.program, "search_min", &err);
     ocl_check(err, "create kernel search_min");
